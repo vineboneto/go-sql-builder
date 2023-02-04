@@ -12,10 +12,10 @@
 $ go mod init example.com/my-golib-demo
 ```
 
-### Get the go-lib module
+### Get the go-sql-builder module
 
 ```bash
-$ go get github.com/vineboneto/go-sql-builder@v0.1.0
+$ go get github.com/vineboneto/go-sql-builder
 ```
 
 ```go

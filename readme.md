@@ -22,23 +22,23 @@ $ go get github.com/vineboneto/go-sql-builder@v0.1.0
 package main
 
 import (
-    "fmt"
+	"fmt"
 
-    "github.com/vineboneto/go-sql-builder"
+	sqlbuilder "github.com/vineboneto/go-sql-builder"
 )
 
 func main() {
-    type Input struct {
-      ID        int
-      FirstName string
-      LastName  string
-      GroupId   []int
-    }
+	type Input struct {
+		ID        int
+		FirstName string
+		LastName  string
+		GroupId   []int
+	}
 
-    input := Input{ID: 2, GroupId: []int{1, 2, 3}, LastName: "Boneto"}
+	input := Input{ID: 2, GroupId: []int{1, 2, 3}, LastName: "Boneto"}
 
-    sql, args := sql, args2 := BuildPG().
-    Raw("SELECT * FROM tb").
+	sql, args := sqlbuilder.BuildPG().
+		Raw("SELECT * FROM tb").
 		Where().
 		And("id = ?", input.ID).
 		AndInInt("group_id IN ? ", input.GroupId).
@@ -46,7 +46,8 @@ func main() {
 		AndLike("last_name LIKE ?", input.LastName).
 		String()
 
-    fmt.Println(sql)
-    fmt.Println(args)
+	fmt.Println(sql)
+	fmt.Println(args)
 }
+
 ```

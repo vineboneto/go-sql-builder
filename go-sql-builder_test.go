@@ -27,9 +27,7 @@ func TestSelectWhere(t *testing.T) {
 		And("g.active = ?", 1).
 		String()
 
-	sql, args2 := BuildPG().Raw(`
-		SELECT *.tb, (%s) AS groups FROM tbl tb
-	`).
+	sql, args2 := BuildPG().Raw("SELECT *.tb, (%s) AS groups FROM tbl tb").
 		SubRaw(subRaw).
 		Where().
 		And("tb.id = ?", input.ID).

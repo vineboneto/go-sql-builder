@@ -7,6 +7,7 @@ package lib
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -122,21 +123,23 @@ func (q *Query) AndBetween(s string, v1 any, v2 any) *Query {
 	return q
 }
 
-func (q *Query) AndInInt(s string, v []int) *Query {
+func (q *Query) AndIn(s string, v any) *Query {
 
-	if len(v) != 0 {
-		q.whereFieldsSql = append(q.whereFieldsSql, s)
-		q.args = append(q.args, v)
+	isArray := func(v any) bool {
+		return reflect.ValueOf(v).Kind() == reflect.Slice
 	}
-	return q
-}
 
-func (q *Query) AndInStr(s string, v []string) *Query {
+	if isArray(v) {
 
-	if len(v) != 0 {
-		q.whereFieldsSql = append(q.whereFieldsSql, s)
-		q.args = append(q.args, v)
+		array := reflect.ValueOf(v)
+
+		if array.Len() != 0 {
+			q.whereFieldsSql = append(q.whereFieldsSql, s)
+			q.args = append(q.args, v)
+		}
+
 	}
+
 	return q
 }
 

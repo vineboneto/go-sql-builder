@@ -72,9 +72,9 @@ func TestInsertWhere(t *testing.T) {
 	sql, args := BuildPG().Raw(`
 		INSERT INTO tbl
 	`).
-		InsertValue("first_name", input.FirstName).
-		InsertValue("last_name", input.LastName).
-		InsertValueOnEmpty("phone", input.Phone).
+		InsertOnlyValue("first_name", input.FirstName).
+		InsertOnlyValue("last_name", input.LastName).
+		Insert("phone", input.Phone).
 		String()
 
 	if expected_sql != sql || !reflect.DeepEqual(expected_args, args) {
@@ -101,9 +101,9 @@ func TestUpdateWhere(t *testing.T) {
 	sql, args := BuildPG().Raw(`
 		UPDATE tbl
 	`).
-		UpdateSet("first_name = ?", input.FirstName).
-		UpdateSet("last_name = ?", input.LastName).
-		UpdateSetOnEmpty("phone = ?", input.Phone).
+		UpdateOnlyValue("first_name = ?", input.FirstName).
+		UpdateOnlyValue("last_name = ?", input.LastName).
+		Update("phone = ?", input.Phone).
 		Where().
 		And("id = ?", input.ID).
 		String()

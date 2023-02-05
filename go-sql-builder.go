@@ -30,7 +30,7 @@ func BuildPG() *Query {
 
 }
 
-func (q *Query) InsertValue(field string, v any) *Query {
+func (q *Query) InsertOnlyValue(field string, v any) *Query {
 	if v != "" && v != 0 && v != nil {
 		q.insertFieldSql = append(q.insertFieldSql, field)
 		q.args = append(q.args, v)
@@ -39,14 +39,14 @@ func (q *Query) InsertValue(field string, v any) *Query {
 	return q
 }
 
-func (q *Query) InsertValueOnEmpty(field string, v any) *Query {
+func (q *Query) Insert(field string, v any) *Query {
 	q.insertFieldSql = append(q.insertFieldSql, field)
 	q.args = append(q.args, v)
 
 	return q
 }
 
-func (q *Query) UpdateSet(field string, v any) *Query {
+func (q *Query) UpdateOnlyValue(field string, v any) *Query {
 	if v != "" && v != 0 && v != nil {
 		q.updateFieldsSql = append(q.updateFieldsSql, field)
 		q.args = append(q.args, v)
@@ -55,7 +55,7 @@ func (q *Query) UpdateSet(field string, v any) *Query {
 	return q
 }
 
-func (q *Query) UpdateSetOnEmpty(field string, v any) *Query {
+func (q *Query) Update(field string, v any) *Query {
 	q.updateFieldsSql = append(q.updateFieldsSql, field)
 	q.args = append(q.args, v)
 

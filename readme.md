@@ -41,7 +41,7 @@ func main() {
 		Raw("SELECT * FROM tb").
 		Where().
 		And("id = ?", input.ID).
-		AndInInt("group_id IN ? ", input.GroupId).
+		AndIn("group_id IN ? ", input.GroupId).
 		And("first_name = ?", input.FirstName).
 		AndLike("last_name LIKE ?", input.LastName).
 		String()

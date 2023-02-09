@@ -157,8 +157,10 @@ func (q *Query) Limit(v int) *Query {
 	return q
 }
 
-func (q *Query) OrderBy(f string) *Query {
-	q.orderBy = "ORDER BY " + f
+func (q *Query) OrderBy(v string, order string) *Query {
+	if v != "" {
+		q.orderBy = "ORDER BY " + v + " " + order
+	}
 	return q
 }
 

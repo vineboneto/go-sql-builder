@@ -19,7 +19,7 @@ func TestSelectWhere(t *testing.T) {
 
 	input := Input{ID: 2, GroupId: []int{1, 2, 3}, Permissions: []string{"USER", "ADMIN"}, LastName: "Boneto", Active: true}
 
-	expected_sql := "SELECT *.tb, (SELECT json_agg(g.id) FROM tbl_group g WHERE g.id_user = tb.id AND g.active = ?) AS groups FROM tbl tb WHERE 1 = 1 AND tb.id = ? AND tb.group_id IN ? AND tb.permission_id IN ? AND tb.active = 1 AND tb.last_name LIKE ? ORDER BY tb.id OFFSET ? LIMIT ?"
+	expected_sql := "SELECT *.tb, (SELECT json_agg(g.id) FROM tbl_group g WHERE g.id_user = tb.id AND g.active = ?) AS groups FROM tbl tb WHERE 1 = 1 AND tb.id = ? AND tb.group_id IN ? AND tb.permission_id IN ? AND tb.active = 1 AND tb.last_name LIKE ? ORDER BY tb.id asc OFFSET ? LIMIT ?"
 	expected_args := []any{1, 2, []int{1, 2, 3}, []string{"USER", "ADMIN"}, "%Boneto%", 10, 20}
 
 	subRaw, args1 := BuildPG().
@@ -40,7 +40,7 @@ func TestSelectWhere(t *testing.T) {
 		AndLike("tb.last_name LIKE ?", input.LastName).
 		Offset(10).
 		Limit(20).
-		OrderBy("tb.id").
+		OrderBy("tb.id", "asc").
 		String()
 
 	var args []any

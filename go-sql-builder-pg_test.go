@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSelectWhere(t *testing.T) {
+func TestSelectWherePG(t *testing.T) {
 
 	type Input struct {
 		ID          int
@@ -55,7 +55,7 @@ func TestSelectWhere(t *testing.T) {
 	}
 }
 
-func TestInsertWhere(t *testing.T) {
+func TestInsertWherePG(t *testing.T) {
 
 	type Input struct {
 		ID        int
@@ -84,7 +84,7 @@ func TestInsertWhere(t *testing.T) {
 	}
 }
 
-func TestUpdateWhere(t *testing.T) {
+func TestUpdateWherePG(t *testing.T) {
 
 	type Input struct {
 		ID        int

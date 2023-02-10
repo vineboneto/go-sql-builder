@@ -1,8 +1,3 @@
-/**
- * Author: Vinicius Gazolla Boneto
- * File: go-sql-builder.go
- */
-
 package lib
 
 import (
@@ -12,7 +7,12 @@ import (
 	"strings"
 )
 
-type Query struct {
+type offset struct {
+	value int
+	use   bool
+}
+
+type querySqlServer struct {
 	raw             string
 	subRaws         []any
 	insertFieldSql  []string
@@ -22,16 +22,16 @@ type Query struct {
 
 	args    []any
 	limit   int
-	offset  int
+	offset  offset
 	orderBy string
 }
 
-func BuildPG() *Query {
-	return &Query{}
+func BuildSQLServer() *querySqlServer {
+	return &querySqlServer{}
 
 }
 
-func (q *Query) InsertOnlyValue(field string, v any) *Query {
+func (q *querySqlServer) InsertOnlyValue(field string, v any) *querySqlServer {
 	if q.checkHashValue(v) {
 		q.insertFieldSql = append(q.insertFieldSql, field)
 		q.args = append(q.args, v)
@@ -40,14 +40,14 @@ func (q *Query) InsertOnlyValue(field string, v any) *Query {
 	return q
 }
 
-func (q *Query) Insert(field string, v any) *Query {
+func (q *querySqlServer) Insert(field string, v any) *querySqlServer {
 	q.insertFieldSql = append(q.insertFieldSql, field)
 	q.args = append(q.args, v)
 
 	return q
 }
 
-func (q *Query) UpdateOnlyValue(field string, v any) *Query {
+func (q *querySqlServer) UpdateOnlyValue(field string, v any) *querySqlServer {
 	if q.checkHashValue(v) {
 		q.updateFieldsSql = append(q.updateFieldsSql, field)
 		q.args = append(q.args, v)
@@ -56,39 +56,39 @@ func (q *Query) UpdateOnlyValue(field string, v any) *Query {
 	return q
 }
 
-func (q *Query) Update(field string, v any) *Query {
+func (q *querySqlServer) Update(field string, v any) *querySqlServer {
 	q.updateFieldsSql = append(q.updateFieldsSql, field)
 	q.args = append(q.args, v)
 
 	return q
 }
 
-func (q *Query) InsertEnd(sql string) *Query {
+func (q *querySqlServer) InsertEnd(sql string) *querySqlServer {
 	q.insertEndSql = sql
 	return q
 }
 
-func (q *Query) Raw(raw string) *Query {
+func (q *querySqlServer) Raw(raw string) *querySqlServer {
 	q.raw = raw
 	return q
 }
 
-func (q *Query) SubRaw(raw string) *Query {
+func (q *querySqlServer) SubRaw(raw string) *querySqlServer {
 	q.subRaws = append(q.subRaws, raw)
 	return q
 }
 
-func (q *Query) Where() *Query {
+func (q *querySqlServer) Where() *querySqlServer {
 	q.whereFieldsSql = append(q.whereFieldsSql, "WHERE 1 = 1")
 	return q
 }
 
-func (q *Query) AndRaw(raw string) *Query {
+func (q *querySqlServer) AndRaw(raw string) *querySqlServer {
 	q.whereFieldsSql = append(q.whereFieldsSql, raw)
 	return q
 }
 
-func (q *Query) And(s string, v any) *Query {
+func (q *querySqlServer) And(s string, v any) *querySqlServer {
 
 	if q.checkHashValue(v) {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
@@ -97,7 +97,7 @@ func (q *Query) And(s string, v any) *Query {
 	return q
 }
 
-func (q *Query) AndRawCondition(s string, v bool) *Query {
+func (q *querySqlServer) AndRawCondition(s string, v bool) *querySqlServer {
 
 	if v {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
@@ -105,7 +105,7 @@ func (q *Query) AndRawCondition(s string, v bool) *Query {
 	return q
 }
 
-func (q *Query) AndLike(s string, v string) *Query {
+func (q *querySqlServer) AndLike(s string, v string) *querySqlServer {
 
 	if v != "" {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
@@ -114,7 +114,7 @@ func (q *Query) AndLike(s string, v string) *Query {
 	return q
 }
 
-func (q *Query) AndBetween(s string, v1 any, v2 any) *Query {
+func (q *querySqlServer) AndBetween(s string, v1 any, v2 any) *querySqlServer {
 
 	if q.checkHashValue(v1) && q.checkHashValue(v2) {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
@@ -123,7 +123,7 @@ func (q *Query) AndBetween(s string, v1 any, v2 any) *Query {
 	return q
 }
 
-func (q *Query) AndIn(s string, v any) *Query {
+func (q *querySqlServer) AndIn(s string, v any) *querySqlServer {
 
 	isArray := func(v any) bool {
 		return reflect.ValueOf(v).Kind() == reflect.Slice
@@ -143,28 +143,28 @@ func (q *Query) AndIn(s string, v any) *Query {
 	return q
 }
 
-func (q *Query) Offset(v int) *Query {
-	if v > 0 {
-		q.offset = v
+func (q *querySqlServer) Offset(v int) *querySqlServer {
+	if v >= 0 {
+		q.offset = offset{value: v, use: true}
 	}
 	return q
 }
 
-func (q *Query) Limit(v int) *Query {
+func (q *querySqlServer) Limit(v int) *querySqlServer {
 	if v > 0 {
 		q.limit = v
 	}
 	return q
 }
 
-func (q *Query) OrderBy(v string, order string) *Query {
+func (q *querySqlServer) OrderBy(v string, order string) *querySqlServer {
 	if v != "" {
 		q.orderBy = "ORDER BY " + v + " " + order
 	}
 	return q
 }
 
-func (q *Query) String() (string, []any) {
+func (q *querySqlServer) String() (string, []any) {
 	limitSql := ""
 	offsetSql := ""
 	insertFieldsSql := ""
@@ -172,14 +172,14 @@ func (q *Query) String() (string, []any) {
 	updateSql := ""
 	initialSql := q.raw
 
-	if q.offset > 0 {
-		q.args = append(q.args, q.offset)
-		offsetSql = " OFFSET ? "
+	if q.offset.use {
+		q.args = append(q.args, q.offset.value)
+		offsetSql = " OFFSET ? ROWS"
 	}
 
 	if q.limit > 0 {
 		q.args = append(q.args, q.limit)
-		limitSql = " LIMIT ? "
+		limitSql = "FETCH NEXT ? ROWS ONLY"
 	}
 
 	if len(q.subRaws) > 0 {
@@ -218,7 +218,7 @@ func (q *Query) String() (string, []any) {
 	return pattern.ReplaceAllString(trimJoin, " "), q.args
 }
 
-func (q *Query) checkHashValue(v any) bool {
+func (q *querySqlServer) checkHashValue(v any) bool {
 	switch v := v.(type) {
 	case int:
 		if v != 0 {

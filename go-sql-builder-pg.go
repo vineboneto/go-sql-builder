@@ -32,7 +32,7 @@ func BuildPG() *query {
 }
 
 func (q *query) InsertOnlyValue(field string, v any) *query {
-	if q.checkHashValue(v) {
+	if checkHasValue(v) {
 		q.insertFieldSql = append(q.insertFieldSql, field)
 		q.args = append(q.args, v)
 	}
@@ -48,7 +48,7 @@ func (q *query) Insert(field string, v any) *query {
 }
 
 func (q *query) UpdateOnlyValue(field string, v any) *query {
-	if q.checkHashValue(v) {
+	if checkHasValue(v) {
 		q.updateFieldsSql = append(q.updateFieldsSql, field)
 		q.args = append(q.args, v)
 	}
@@ -90,7 +90,7 @@ func (q *query) AndRaw(raw string) *query {
 
 func (q *query) And(s string, v any) *query {
 
-	if q.checkHashValue(v) {
+	if checkHasValue(v) {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
 		q.args = append(q.args, v)
 	}
@@ -116,7 +116,7 @@ func (q *query) AndLike(s string, v string) *query {
 
 func (q *query) AndBetween(s string, v1 any, v2 any) *query {
 
-	if q.checkHashValue(v1) && q.checkHashValue(v2) {
+	if checkHasValue(v1) && checkHasValue(v2) {
 		q.whereFieldsSql = append(q.whereFieldsSql, s)
 		q.args = append(q.args, v1, v2)
 	}
@@ -216,28 +216,4 @@ func (q *query) String() (string, []any) {
 	trimJoin := strings.TrimSpace(strings.Join(str, " "))
 
 	return pattern.ReplaceAllString(trimJoin, " "), q.args
-}
-
-func (q *query) checkHashValue(v any) bool {
-	switch v := v.(type) {
-	case int:
-		if v != 0 {
-			return true
-		}
-	case string:
-		if v != "" {
-			return true
-		}
-	case float64:
-		if v != float64(0) {
-			return true
-		}
-	case bool:
-		return v
-	case nil:
-		return false
-	default:
-		return false
-	}
-	return false
 }
